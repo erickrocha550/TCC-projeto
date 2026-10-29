@@ -45,7 +45,13 @@ module.exports = function accounts({ pool, body, json, findReport, visible }) {
   async function handle(req, res, url) {
     res.setHeader('Cache-Control', 'no-store');
     const route = url.pathname;
-    if (req.method !== 'GET' && req.headers.origin && req.headers.origin !== new URL('http://' + req.headers.host).origin && req.headers.origin !== 'https://' + req.headers.host) fail('Origem da solicitação não permitida.', 403);
+    const allowedOrigins = new Set((process.env.CORS_ORIGIN || '').split(',').map(s => s.trim()).filter(s => /^https?:\/\//.test(s)));
+    if (process.env.RENDER_EXTERNAL_URL) allowedOrigins.add(new URL(process.env.RENDER_EXTERNAL_URL).origin);
+    if (req.headers.host) {
+      allowedOrigins.add(new URL('http://' + req.headers.host).origin);
+      allowedOrigins.add(new URL('https://' + req.headers.host).origin);
+    }
+    if (req.method !== 'GET' && req.headers.origin && !allowedOrigins.has(req.headers.origin)) fail('Origem da solicitação não permitida. Abra o site pelo endereço do Render ou configure CORS_ORIGIN com o endereço exato da página.', 403);
     if (route === '/api/auth/register' || route === '/api/auth/login') {
       if (req.method !== 'POST') fail('Método não permitido.', 405);
       const key = req.socket.remoteAddress;

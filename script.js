@@ -26,10 +26,10 @@ const garbageTrucks = [
             catch (error) { return `browser-${Date.now()}-${Math.random().toString(36).slice(2)}`; }
         }
         // Para frontend hospedado em outro domínio, configure ECOFILA_API_BASE com a origem pública da API.
-        const API_BASE_URL = (window.ECOFILA_API_BASE || '').replace(/\/+$/, '');
+        const API_BASE_URL = (window.ECOFILA_API_BASE || 'https://tcc-projeto-1.onrender.com').replace(/\/+$/, '');
 
         async function apiRequest(url, options = {}) {
-            const response = await fetch(API_BASE_URL + url, { cache: 'no-store', ...options, headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) } });
+            const response = await fetch(API_BASE_URL + url, { cache: 'no-store', credentials: 'include', ...options, headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) } });
             const result = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(result.error || 'O servidor não conseguiu concluir a solicitação.');
             return result;
