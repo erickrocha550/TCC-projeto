@@ -17,7 +17,7 @@ const pool = mysql.createPool({
   port: Number(process.env.DB_PORT || 3306),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'ecofila',
+  database: process.env.DB_NAME || 'ecofila_usuarios',
   waitForConnections: true,
   connectionLimit: 10,
   charset: 'utf8mb4'
@@ -214,7 +214,9 @@ async function protocol() {
   return id;
 }
 
+const accounts = require('./accounts')({ pool, body, json, findReport, visible });
 async function api(req, res, url) {
+  if (await accounts.handle(req, res, url)) return;
   const parts = url.pathname.split('/').filter(Boolean);
   const clientId = cleanId(url.searchParams.get('clientId'));
 
@@ -309,6 +311,7 @@ async function api(req, res, url) {
   }
 
   if (req.method === 'POST' && url.pathname === '/api/reports') {
+    const account = await accounts.requireUser(req);
     const data = await body(req);
     const category = categories[data.category];
     if (!category) return json(res, 400, { error: 'Selecione uma categoria válida.' });
@@ -357,6 +360,7 @@ async function api(req, res, url) {
     try {
       await connection.beginTransaction();
       await insertReport(connection, report, Date.now());
+      await connection.execute('INSERT INTO report_accounts (report_id,user_id) VALUES (?,?)', [report.id, account.id]);
       await connection.execute('INSERT INTO report_owners (report_id, client_id) VALUES (?, ?)', [report.id, voter]);
       await connection.commit();
     } catch (error) {
@@ -372,9 +376,11 @@ async function api(req, res, url) {
   return json(res, 404, { error: 'Rota da API não encontrada.' });
 }
 
-const files = new Set(['index.html', 'head.png', 'logo.png', 'logo.jpeg']);
+const files = new Set(['index.html', 'head.png', 'logo.png', 'logo.jpeg', 'script.js', 'style.css', 'tailwind-config.js', 'accounts-ui.js']);
 const types = {
   '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
   '.png': 'image/png',
   '.jpeg': 'image/jpeg',
   '.jpg': 'image/jpeg'
@@ -416,6 +422,7 @@ async function staticFile(req, res, url) {
 
 async function start() {
   await initializeDatabase();
+  await accounts.initialize();
   const server = http.createServer(async (req, res) => {
     try {
       applyCors(req, res);
@@ -437,7 +444,7 @@ async function start() {
 
   server.listen(PORT, HOST, () => {
     console.log('EcoFila disponível em http://' + HOST + ':' + PORT);
-    console.log('Banco MySQL: ' + (process.env.DB_NAME || 'ecofila') + ' em ' + (process.env.DB_HOST || '127.0.0.1'));
+    console.log('Banco MySQL: ' + (process.env.DB_NAME || 'ecofila_usuarios') + ' em ' + (process.env.DB_HOST || '127.0.0.1'));
   });
 
   const shutdown = () => {

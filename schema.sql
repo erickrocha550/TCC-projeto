@@ -1,8 +1,8 @@
-CREATE DATABASE IF NOT EXISTS ecofila
+CREATE DATABASE IF NOT EXISTS ecofila_usuarios
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE ecofila;
+USE ecofila_usuarios;
 
 CREATE TABLE IF NOT EXISTS reports (
   id VARCHAR(100) PRIMARY KEY,
