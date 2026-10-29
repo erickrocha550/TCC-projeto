@@ -145,6 +145,7 @@ async function initializeDatabase() {
     'CREATE TABLE IF NOT EXISTS app_metadata (meta_key VARCHAR(100) PRIMARY KEY, meta_value VARCHAR(100) NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
   );
 
+  await pool.query('CREATE TABLE IF NOT EXISTS report_owners (report_id VARCHAR(100) PRIMARY KEY, client_id VARCHAR(100) NOT NULL, FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
   const [metaRows] = await pool.execute(
     'SELECT meta_value FROM app_metadata WHERE meta_key = ?',
     ['initial-data-loaded']
@@ -244,6 +245,17 @@ async function api(req, res, url) {
       return json(res, report ? 200 : 404, { report: report ? visible(report, clientId) : null });
     }
 
+    if (req.method === 'POST' && parts[3] === 'cancel' && parts.length === 4) {
+      if (!report) return json(res, 404, { error: 'Denúncia não encontrada.' });
+      const data = await body(req);
+      const owner = cleanId(data.clientId);
+      const [owners] = await pool.execute('SELECT client_id FROM report_owners WHERE report_id = ? AND client_id = ?', [report.id, owner]);
+      if (!owner || !owners.length) return json(res, 403, { error: 'Não foi possível confirmar a autoria. Denúncias antigas, anteriores a esta função, não podem ser canceladas por aqui.' });
+      await pool.execute("UPDATE reports SET status = 'Cancelado' WHERE id = ? AND status NOT IN ('Resolvido', 'Cancelado')", [report.id]);
+      const updated = await findReport(report.id);
+      if (updated.status === 'Resolvido') return json(res, 409, { error: 'Uma denúncia resolvida não pode ser cancelada.' });
+      return json(res, 200, { report: visible(updated, owner) });
+    }
     if (req.method === 'POST' && parts[3] === 'support' && parts.length === 4) {
       if (!report) return json(res, 404, { error: 'Denúncia não encontrada.' });
       const data = await body(req);
@@ -345,6 +357,7 @@ async function api(req, res, url) {
     try {
       await connection.beginTransaction();
       await insertReport(connection, report, Date.now());
+      await connection.execute('INSERT INTO report_owners (report_id, client_id) VALUES (?, ?)', [report.id, voter]);
       await connection.commit();
     } catch (error) {
       await connection.rollback();
