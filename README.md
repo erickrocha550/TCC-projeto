@@ -159,15 +159,6 @@ O projeto ainda não contém um arquivo `LICENSE`. A licença precisa ser defini
 
 ---
 
-## 🙏 Agradecimentos
-
-- [Leaflet](https://leafletjs.com/) e [OpenStreetMap](https://www.openstreetmap.org/) pela tecnologia e dados cartográficos usados no mapa.
-- [Chart.js](https://www.chartjs.org/) para os gráficos.
-- [Lucide](https://lucide.dev/) para os ícones.
-- [Tailwind CSS](https://tailwindcss.com/) para a estilização da interface.
-
----
-
 <div align="center">
 
 **🌱 EcoFila — tecnologia para uma cidade mais limpa e participativa.**
