@@ -1,0 +1,16 @@
+{
+  "name": "ecofila-com-usuarios",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EcoFila com autenticação e perfis de cidadão, operador e administrador",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.4",
+    "mysql2": "^3.24.5"
+  }
+}
