@@ -8,7 +8,7 @@
 
   [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen)](http://makeapullrequest.com)
 
-  [Demo ao Vivo](https://ecofila.netlify.app) · [Apresentação HTML](docs/index.html)
+  [Demo ao Vivo](https://ecofila.netlify.app) ·
 </div>
 
 ---
