@@ -30,17 +30,23 @@ O EcoFila é uma plataforma cidadã para registrar e acompanhar problemas urbano
 
 ### Screenshots
 
+
 ### Tela Principal
 <div align="center">
   <img src="docs/screenshots/tela-principal.png" alt="Tela principal do EcoFila" width="48%">
 </div>
+
 ### Painel
 <div align="center">
   <img src="docs/screenshots/painel-estatisticas.png" alt="Painel de estatísticas do EcoFila" width="48%">
 </div>
+
+### Consulta
 <div align="center">
   <img src="docs/screenshots/consulta-protocolo.png" alt="Consulta de protocolo do EcoFila" width="48%">
 </div>
+
+### Cadastro
 <div align="center">
    <img src="docs/screenshots/acesso-cadastro.png" alt="Acesso e cadastro de usuários" width="48%">
 </div>
